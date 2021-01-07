@@ -46,6 +46,8 @@ namespace WoWCheck
             return result;
         }
     }
+
+    // Атоматически сгенерированный код
     
     public partial class Affixes
     {
@@ -82,10 +84,10 @@ namespace WoWCheck
         public static Affixes FromJson(string json) => JsonConvert.DeserializeObject<Affixes>(json, WoWCheck.Converter.Settings);
     }
 
-    public static class Serialize
-    {
-        public static string ToJson(this Affixes self) => JsonConvert.SerializeObject(self, WoWCheck.Converter.Settings);
-    }
+    //public static class Serialize
+    //{
+    //    public static string ToJson(this Affixes self) => JsonConvert.SerializeObject(self, WoWCheck.Converter.Settings);
+    //}
 
     internal static class Converter
     {
