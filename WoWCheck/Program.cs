@@ -17,7 +17,6 @@ namespace WoWCheck
             var discord = connections.CreateClient();
             var requestResult = new APIRequest();
 
-
             discord.MessageCreated += async e =>
             {
                 var message = e.Message.Content;
@@ -37,7 +36,7 @@ namespace WoWCheck
                         };
                         foreach (var (key, value) in requestResult.MakeRequest().Result) embed.AddField(key, value);
                         embed.WithFooter("by Raider.IO", discord.CurrentUser.AvatarUrl);
-
+                        
                         // TODO: Сюда только ответ
 
                         await e.Message.RespondAsync(embed: embed.Build());
