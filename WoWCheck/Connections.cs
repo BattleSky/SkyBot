@@ -7,23 +7,21 @@ namespace WoWCheck
     class Connections
     {
         private string discordKeyPath = @"Discord.tkey";
-        private string discordToken;
+
 
         public  DiscordClient CreateClient()
         {
+            string discordToken;
             try
             {
                 using (StreamReader sr = new StreamReader(discordKeyPath))
-                {
                     discordToken = sr.ReadToEnd();
-                    Console.WriteLine(sr.ReadToEnd());
-                }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                throw;
             }
-
             var discord = new DiscordClient(new DiscordConfiguration
             {
                 Token = discordToken,

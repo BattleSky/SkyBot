@@ -9,6 +9,7 @@ using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
+// TODO: Переписать для аффиксов по-нормальному
 
 namespace WoWCheck
 {
