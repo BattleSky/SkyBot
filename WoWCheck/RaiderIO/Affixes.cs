@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net.Http;
-using System.Threading.Tasks;
+using DSharpPlus;
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -11,14 +12,20 @@ namespace WoWCheck.RaiderIO
 {
     class AffixesModule
     {
-        private Affixes SerializedAffixes { get; set; }
-
         #region Запрос и обработка
         // Запрос данных и возврат их в качестве поля 
-        public async Task<Dictionary<string, string>> MakeRequest()
+        public async void AffixRequest(DiscordClient discord, MessageCreateEventArgs e)
         {
             HttpContent responseContent;
-            var result = new Dictionary<string, string>();
+            var embed = new DiscordEmbedBuilder
+            {
+                Color = new DiscordColor("#FF0000"),
+                Title = "Модификаторы эпохальных подземелий",
+                //Description = "11",
+                Timestamp = DateTime.UtcNow
+            };
+            var plusAddiction= new[] {" (+2) ", " (+4) ", " (+7) ", " (+10) "};
+
             using (var httpClient = new HttpClient())
             {
                 using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://raider.io/api/v1/mythic-plus/affixes?region=eu&locale=ru"))
@@ -28,37 +35,36 @@ namespace WoWCheck.RaiderIO
                     responseContent = response.Content;
                 }
             }
-            // Get the stream of the content.
+            // Собираем ответ
             using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
             {
-                SerializedAffixes = Affixes.FromJson(await reader.ReadToEndAsync());
-
-                foreach (var detail in SerializedAffixes.AffixDetails)
-                {
-                    result.Add(detail.Name, detail.Description);
+                var serializedAffixes = Affixes.FromJson(await reader.ReadToEndAsync());
+                var counter = 0;
+                foreach (var detail in serializedAffixes.AffixDetails)
+                {   
+                    var namePlusAffixLevel = plusAddiction[counter] + detail.Name;
+                    embed.AddField(namePlusAffixLevel, detail.Description);
+                    counter++;
                 }
+                embed.WithFooter("by Raider.IO", discord.CurrentUser.AvatarUrl);
+
+                await e.Message.RespondAsync(embed: embed.Build());
             }
-            return result;
         }
 
         #endregion
 
-        #region Конструкторы блоков и ответов
+        #region Классы данных
 
-
-
-        #endregion
-
-        #region Автоматически сгенерированный класс
-
-
+        //Автоматически сгенерированные классы
+        //Закоментирована неиспользуемая информация
         public partial class Affixes
         {
-            [JsonProperty("region")]
-            public string Region { get; set; }
+            //[JsonProperty("region")]
+            //public string Region { get; set; }
 
-            [JsonProperty("title")]
-            public string Title { get; set; }
+            //[JsonProperty("title")]
+            //public string Title { get; set; }
 
             //[JsonProperty("leaderboard_url")]
             //public Uri LeaderboardUrl { get; set; }
@@ -69,8 +75,8 @@ namespace WoWCheck.RaiderIO
 
         public partial class AffixDetail
         {
-            [JsonProperty("id")]
-            public long Id { get; set; }
+            //[JsonProperty("id")]
+            //public long Id { get; set; }
 
             [JsonProperty("name")]
             public string Name { get; set; }
@@ -78,8 +84,8 @@ namespace WoWCheck.RaiderIO
             [JsonProperty("description")]
             public string Description { get; set; }
 
-            [JsonProperty("wowhead_url")]
-            public Uri WowheadUrl { get; set; }
+            //[JsonProperty("wowhead_url")]
+            //public Uri WowheadUrl { get; set; }
         }
 
         public partial class Affixes
@@ -107,7 +113,6 @@ namespace WoWCheck.RaiderIO
 
         #endregion
 
-        
+        }
 
     }
-}

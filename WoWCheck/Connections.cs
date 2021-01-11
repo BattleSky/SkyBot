@@ -7,8 +7,7 @@ namespace WoWCheck
     class Connections
     {
         private string discordKeyPath = @"Discord.tkey";
-
-
+        
         public  DiscordClient CreateClient()
         {
             string discordToken;

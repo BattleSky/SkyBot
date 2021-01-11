@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DSharpPlus.Entities;
 using WoWCheck.RaiderIO;
 
 namespace WoWCheck
@@ -14,8 +13,7 @@ namespace WoWCheck
 
         private static async Task MainTask(string[] args)
         {
-            var connections = new Connections();
-            var discord = connections.CreateClient();
+            var discord = new Connections().CreateClient();
             var affixesModule = new AffixesModule();
 
             discord.MessageCreated += async e =>
@@ -24,26 +22,11 @@ namespace WoWCheck
                 if (e.Channel.Id != 241874656318062593) return;
                 if (message.StartsWith("-")) // TODO: Есть возможность реализовать это по-другому, в доке описание
                 {
-                    if (message.Contains("affix")
-                    ) // TODO: Есть возможность реализовать это по-другому, в доке описание
-                    {
-                        // TODO: Не засорять конструктором этот метод
-                        var embed = new DiscordEmbedBuilder
-                        {
-                            Color = new DiscordColor("#FF0000"),
-                            Title = "Модификаторы эпохальных подземелий",
-                            //Description = "something wrong",
-                            Timestamp = DateTime.UtcNow
-                        };
-                        foreach (var (key, value) in affixesModule.MakeRequest().Result) embed.AddField(key, value);
-                        embed.WithFooter("by Raider.IO", discord.CurrentUser.AvatarUrl);
-                        
-                        // TODO: Сюда только ответ
-
-                        await e.Message.RespondAsync(embed: embed.Build());
-                    }
+                    if (message.Contains("affix")) // TODO: Есть возможность реализовать это по-другому, в доке описание
+                       affixesModule.AffixRequest(discord, e);
+                    
                     //await e.Message.RespondAsync("Hello, " + e.Author.Username);
-                    //await e.Message.RespondAsync(await requestResult.MakeRequest());
+                    //await e.Message.RespondAsync(await requestResult.AffixRequest());
 
                     if (message.Contains("hi")) await e.Message.RespondAsync("Hello, " + e.Author.Username);
                 }
