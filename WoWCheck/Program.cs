@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using WoWCheck.RaiderIO;
 
 namespace WoWCheck
 {
@@ -15,7 +16,7 @@ namespace WoWCheck
         {
             var connections = new Connections();
             var discord = connections.CreateClient();
-            var requestResult = new APIRequest();
+            var affixesModule = new AffixesModule();
 
             discord.MessageCreated += async e =>
             {
@@ -30,11 +31,11 @@ namespace WoWCheck
                         var embed = new DiscordEmbedBuilder
                         {
                             Color = new DiscordColor("#FF0000"),
-                            Title = "Аффиксы на этой неделе",
+                            Title = "Модификаторы эпохальных подземелий",
                             //Description = "something wrong",
                             Timestamp = DateTime.UtcNow
                         };
-                        foreach (var (key, value) in requestResult.MakeRequest().Result) embed.AddField(key, value);
+                        foreach (var (key, value) in affixesModule.MakeRequest().Result) embed.AddField(key, value);
                         embed.WithFooter("by Raider.IO", discord.CurrentUser.AvatarUrl);
                         
                         // TODO: Сюда только ответ

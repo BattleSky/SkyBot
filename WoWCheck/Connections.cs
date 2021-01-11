@@ -19,7 +19,7 @@ namespace WoWCheck
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Discord Read Key:" + e.Message);
                 throw;
             }
             var discord = new DiscordClient(new DiscordConfiguration
