@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using System.Net.Http;
+using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -14,12 +15,12 @@ namespace WoWCheck.RaiderIO
     {
         #region Запрос и обработка
         // Запрос данных и возврат их в качестве поля 
-        public async void AffixRequest(DiscordClient discord, MessageCreateEventArgs e)
+        public async Task<DiscordEmbedBuilder> AffixRequest(string avatarUrl)
         {
             HttpContent responseContent;
             var embed = new DiscordEmbedBuilder
             {
-                Color = new DiscordColor("#FF0000"),
+                Color = new DiscordColor("#3AE6DB"),
                 Title = "Модификаторы эпохальных подземелий",
                 //Description = "11",
                 Timestamp = DateTime.UtcNow
@@ -46,9 +47,9 @@ namespace WoWCheck.RaiderIO
                     embed.AddField(namePlusAffixLevel, detail.Description);
                     counter++;
                 }
-                embed.WithFooter("by Raider.IO", discord.CurrentUser.AvatarUrl);
-
-                await e.Message.RespondAsync(embed: embed.Build());
+                embed.WithFooter("by Raider.IO", avatarUrl);
+                
+                return embed;
             }
         }
 

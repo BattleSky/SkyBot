@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using DSharpPlus;
+using Microsoft.Extensions.Logging;
+
 
 namespace WoWCheck
 {
@@ -25,8 +27,7 @@ namespace WoWCheck
             {
                 Token = discordToken,
                 TokenType = TokenType.Bot,
-                UseInternalLogHandler = true,
-                LogLevel = LogLevel.Debug
+                MinimumLogLevel = LogLevel.Debug
             });
             return discord;
         }
