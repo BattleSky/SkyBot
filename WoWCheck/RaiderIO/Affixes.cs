@@ -30,20 +30,18 @@ namespace WoWCheck.RaiderIO
                 RioRequest.Request("https://raider.io/api/v1/mythic-plus/affixes?region=eu&locale=ru").Result;
 
             // Собираем ответ
-            using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
-            {
-                var serializedAffixes = Affixes.FromJson(await reader.ReadToEndAsync());
-                var counter = 0;
-                foreach (var detail in serializedAffixes.AffixDetails)
-                {   
-                    var namePlusAffixLevel = plusAddiction[counter] + detail.Name;
-                    embed.AddField(namePlusAffixLevel, detail.Description);
-                    counter++;
-                }
-                embed.WithFooter("by Raider.IO", avatarUrl);
-                
-                return embed;
+            using var reader = new StreamReader(await responseContent.ReadAsStreamAsync());
+            var serializedAffixes = Affixes.FromJson(await reader.ReadToEndAsync());
+            var counter = 0;
+            foreach (var detail in serializedAffixes.AffixDetails)
+            {   
+                var namePlusAffixLevel = plusAddiction[counter] + detail.Name;
+                embed.AddField(namePlusAffixLevel, detail.Description);
+                counter++;
             }
+            embed.WithFooter("by Raider.IO", avatarUrl);
+                
+            return embed;
         }
 
         #endregion
@@ -107,6 +105,6 @@ namespace WoWCheck.RaiderIO
 
         #endregion
 
-        }
-
     }
+
+}

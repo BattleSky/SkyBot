@@ -16,5 +16,13 @@ namespace WoWCheck
             await ctx.RespondAsync(embed: embed.Result);
         }
 
+        [Command("rio")]
+        public async Task RioCommand(CommandContext ctx, string name)
+        {
+            var MythisPlusModule = new MythicPlusModule();
+            if (ctx.Channel.Id != 241874656318062593) return;
+            var embed = MythisPlusModule.MythicPlusRequest(ctx.User.AvatarUrl, name);
+            await ctx.RespondAsync(embed: embed.Result);
+        }
     }
 }
