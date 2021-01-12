@@ -35,7 +35,7 @@ namespace WoWCheck.RaiderIO
                         + "&fields=mythic_plus_scores_by_season%3Acurrent%2Cmythic_plus_best_runs%3Aall").Result;
             using var reader = new StreamReader(await responseContent.ReadAsStreamAsync());
             var serializedStats = MythicPlusStats.FromJson(await reader.ReadToEndAsync());
-
+            // TODO: Компановку вынести в другой метод
             if (serializedStats.ErrorMessage != null)
                 embed.AddField("Не получилось загрузить информацию", "Ответ сервера:" + serializedStats.ErrorMessage);
             else
@@ -43,6 +43,8 @@ namespace WoWCheck.RaiderIO
                 embed.AddField("Имя", serializedStats.Name, true);
                 embed.AddField("Сервер", serializedStats.Realm, true);
                 embed.AddField("Класс/Специализация", serializedStats.Class + "/" + serializedStats.ActiveSpecName, true);
+                embed.AddField("Сервер", serializedStats.Realm, true);
+                // TODO : сделать инлайн со всем выводом статов
                 var scores = serializedStats.MythicPlusScoresBySeason[0].Scores;
                 var rioScoreData = "DPS: " + scores.Dps + "\nHeal:" + scores.Healer + "\nTank:" + scores.Tank;
                 embed.AddField("Очки Raider.io", rioScoreData);
