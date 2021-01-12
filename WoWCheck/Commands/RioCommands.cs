@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using WoWCheck.RaiderIO;
@@ -8,14 +7,6 @@ namespace WoWCheck
 {
     public class RioCommands : BaseCommandModule
     {
-
-        [Command("qwe")]
-        public async Task GreetCommand(CommandContext ctx)
-        {
-            if (ctx.Channel.Id != 241874656318062593) return;
-            await ctx.RespondAsync("rty");
-        }
-
         [Command("affix")]
         public async Task AffixCommand(CommandContext ctx)
         {

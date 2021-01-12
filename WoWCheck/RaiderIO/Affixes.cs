@@ -17,7 +17,7 @@ namespace WoWCheck.RaiderIO
         // Запрос данных и возврат их в качестве поля 
         public async Task<DiscordEmbedBuilder> AffixRequest(string avatarUrl)
         {
-            HttpContent responseContent;
+            
             var embed = new DiscordEmbedBuilder
             {
                 Color = new DiscordColor("#3AE6DB"),
@@ -26,16 +26,9 @@ namespace WoWCheck.RaiderIO
                 Timestamp = DateTime.UtcNow
             };
             var plusAddiction= new[] {" (+2) ", " (+4) ", " (+7) ", " (+10) "};
+            var responseContent =
+                RioRequest.Request("https://raider.io/api/v1/mythic-plus/affixes?region=eu&locale=ru").Result;
 
-            using (var httpClient = new HttpClient())
-            {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://raider.io/api/v1/mythic-plus/affixes?region=eu&locale=ru"))
-                {
-                    request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    var response = await httpClient.SendAsync(request);
-                    responseContent = response.Content;
-                }
-            }
             // Собираем ответ
             using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
             {
