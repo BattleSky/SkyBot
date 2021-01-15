@@ -18,8 +18,15 @@ namespace WoWCheck
         [Command("rio")]
         public async Task RioCommand(CommandContext ctx, string name)
         {
-            var MythisPlusModule = new MythicPlusModule();
-            var embed = MythisPlusModule.MythicPlusRequest(ctx.User.AvatarUrl, name);
+            var mythicPlusModule = new MythicPlusModule();
+            var embed = mythicPlusModule.MythicPlusRequest(name, new []{"гордунни"});
+            await ctx.RespondAsync(embed: embed.Result);
+        }
+        [Command("rio")]
+        public async Task RioCommand(CommandContext ctx, string name, params string[] serverName)
+        {
+            var mythicPlusModule = new MythicPlusModule();
+            var embed = mythicPlusModule.MythicPlusRequest(name, serverName);
             await ctx.RespondAsync(embed: embed.Result);
         }
     }

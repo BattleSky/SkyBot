@@ -9,6 +9,7 @@ using System.Web;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using WoWCheck.Converters;
 
 namespace WoWCheck.RaiderIO
 {
@@ -16,15 +17,30 @@ namespace WoWCheck.RaiderIO
     {
         #region Запрос и обработка
 
-        public async Task<DiscordEmbedBuilder> MythicPlusRequest(string avatarUrl, string name, string servername = "гордунни")
+        public async Task<DiscordEmbedBuilder> MythicPlusRequest(string name, string[] serverNameInput)
         {
-            var encodedServerName = HttpUtility.UrlPathEncode(servername);
+            string serverName;
+            try
+            {
+                serverName = ServerName.RioServerNameConvert(serverNameInput);
+            }
+            catch (Exception e)
+            {
+                return new DiscordEmbedBuilder
+                {
+                    Color = new DiscordColor("#3AE6DB"),
+                    Title = "Ошибка запроса",
+                    Description = e.Message,
+                    Timestamp = DateTime.UtcNow,
+                };
+            }
+
             var encodedName = HttpUtility.UrlPathEncode(name.First().ToString().ToUpper() + name.Substring(1));
 
             var responseContent =
                 RioRequest.Request(
                         "https://raider.io/api/v1/characters/profile?region=eu&realm="
-                        +encodedServerName+"&name=" +encodedName
+                        + serverName + "&name=" +encodedName
                         + "&fields=mythic_plus_scores_by_season%3Acurrent%2Cmythic_plus_best_runs%3Aall").Result;
             using var reader = new StreamReader(await responseContent.ReadAsStreamAsync());
             var serializedStats = MythicPlusStats.FromJson(await reader.ReadToEndAsync());
@@ -62,10 +78,10 @@ namespace WoWCheck.RaiderIO
             embed.AddField("Специализация", stats.ActiveSpecName + " " + stats.Class, true);
             var scores = stats.MythicPlusScoresBySeason[0].Scores; 
             //         var rioScoreData = "DPS: " + scores.Dps + "\nHeal: " + scores.Healer + "\nTank: " + scores.Tank;
-            embed.AddField("Рейтинг м+", "Урон: " + scores.Dps, true);
-            embed.AddField("-", "Исцеление: " + scores.Healer, true);
-            embed.AddField("-", "Танк: " + scores.Tank, true);
-            embed.AddField("Лучшие пройденные вовремя", BestRuns(stats));
+            embed.AddField("Рейтинг м+", "Урон: **" + scores.Dps + "**", true);
+            embed.AddField("-", "Исцеление: **" + scores.Healer + "**", true);
+            embed.AddField("-", "Танк: **" + scores.Tank + "**", true);
+            embed.AddField("Лучшие пройденные", BestRuns(stats));
 
             return embed;
         }
@@ -75,8 +91,9 @@ namespace WoWCheck.RaiderIO
             var collectInformation = new StringBuilder();
             foreach (var bestRun in stats.MythicPlusBestRuns)
             {
+                var dungeonInRus = DungeonName.DungeonNameConverter(bestRun.Dungeon);
                 collectInformation.Append("**(" + bestRun.MythicLevel + "+" + bestRun.NumKeystoneUpgrades + ")** " + //bestRun.ShortName  +
-                                          " *" + bestRun.Dungeon + "*\n");
+                                          " *" + dungeonInRus + "*\n");
             }
             var result = collectInformation.ToString();
             if (result == "" || result == null)

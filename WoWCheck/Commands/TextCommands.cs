@@ -15,6 +15,13 @@ namespace WoWCheck.Commands
             var author = ctx.User.Mention;
             await ctx.RespondAsync("Привет, " + author);
         }
+
+
+
+
+
+        #region Фигня всякая
+
         // Не работает? 
         // Не получает список имен в ctx.Channel.Users
         //[Command("hi")]
@@ -36,5 +43,8 @@ namespace WoWCheck.Commands
         //    else
         //        await ctx.RespondAsync("Тебе привет, " + mention);
         //}
+
+        #endregion
+
     }
 }
