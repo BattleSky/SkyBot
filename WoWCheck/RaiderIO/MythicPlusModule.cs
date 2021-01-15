@@ -16,16 +16,9 @@ namespace WoWCheck.RaiderIO
     {
         #region Запрос и обработка
 
-        public async Task<DiscordEmbedBuilder> MythicPlusRequest(string avatarUrl, string name)
+        public async Task<DiscordEmbedBuilder> MythicPlusRequest(string avatarUrl, string name, string servername = "гордунни")
         {
-            var embed = new DiscordEmbedBuilder
-            {
-                Color = new DiscordColor("#3AE6DB"),
-                Title = "RIO (переименовать)",
-                //Description = "11",
-                Timestamp = DateTime.UtcNow
-            };
-            var encodedServerName = HttpUtility.UrlPathEncode("гордунни");
+            var encodedServerName = HttpUtility.UrlPathEncode(servername);
             var encodedName = HttpUtility.UrlPathEncode(name.First().ToString().ToUpper() + name.Substring(1));
 
             var responseContent =
@@ -35,23 +28,62 @@ namespace WoWCheck.RaiderIO
                         + "&fields=mythic_plus_scores_by_season%3Acurrent%2Cmythic_plus_best_runs%3Aall").Result;
             using var reader = new StreamReader(await responseContent.ReadAsStreamAsync());
             var serializedStats = MythicPlusStats.FromJson(await reader.ReadToEndAsync());
-            // TODO: Компановку вынести в другой метод
-            if (serializedStats.ErrorMessage != null)
-                embed.AddField("Не получилось загрузить информацию", "Ответ сервера:" + serializedStats.ErrorMessage);
-            else
+            DiscordEmbedBuilder embed;
+            try
             {
-                embed.AddField("Имя", serializedStats.Name, true);
-                embed.AddField("Сервер", serializedStats.Realm, true);
-                embed.AddField("Класс/Специализация", serializedStats.Class + "/" + serializedStats.ActiveSpecName, true);
-                embed.AddField("Сервер", serializedStats.Realm, true);
-                // TODO : сделать инлайн со всем выводом статов
-                var scores = serializedStats.MythicPlusScoresBySeason[0].Scores;
-                var rioScoreData = "DPS: " + scores.Dps + "\nHeal:" + scores.Healer + "\nTank:" + scores.Tank;
-                embed.AddField("Очки Raider.io", rioScoreData);
+                embed = CreateEmbed(serializedStats);
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            return embed;
+        }
+
+        public DiscordEmbedBuilder CreateEmbed(MythicPlusStats stats)
+        {
+            var embed = new DiscordEmbedBuilder
+            {
+                Color = new DiscordColor("#3AE6DB"),
+                Title = "Статистика Raider.IO",
+                //Description = "11",
+                Timestamp = DateTime.UtcNow,
+            };
+
+            embed.WithFooter("(c) Raider.IO", "https://cdnassets.raider.io/images/brand/Mark_2ColorWhite.png");
+            if (stats.ErrorMessage != null)
+            {
+                embed.AddField("Не получилось загрузить информацию", "Ответ сервера:\n" + stats.ErrorMessage);
+                return embed;
+            }
+            embed.AddField("Имя", stats.Name, true);
+            embed.AddField("Сервер", stats.Realm, true);
+            embed.AddField("Специализация", stats.ActiveSpecName + " " + stats.Class, true);
+            var scores = stats.MythicPlusScoresBySeason[0].Scores; 
+            //         var rioScoreData = "DPS: " + scores.Dps + "\nHeal: " + scores.Healer + "\nTank: " + scores.Tank;
+            embed.AddField("Рейтинг м+", "Урон: " + scores.Dps, true);
+            embed.AddField("-", "Исцеление: " + scores.Healer, true);
+            embed.AddField("-", "Танк: " + scores.Tank, true);
+            embed.AddField("Лучшие пройденные вовремя", BestRuns(stats));
 
             return embed;
         }
+
+        public string BestRuns(MythicPlusStats stats)
+        {
+            var collectInformation = new StringBuilder();
+            foreach (var bestRun in stats.MythicPlusBestRuns)
+            {
+                collectInformation.Append("**(" + bestRun.MythicLevel + "+" + bestRun.NumKeystoneUpgrades + ")** " + //bestRun.ShortName  +
+                                          " *" + bestRun.Dungeon + "*\n");
+            }
+            var result = collectInformation.ToString();
+            if (result == "" || result == null)
+                result = "Персонаж не закрывал значимых подземелий с ключом";
+            return result;
+        }
+
 
         #endregion
 

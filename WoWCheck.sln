@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WoWCheck", "WoWCheck\WoWCheck.csproj", "{286F0142-D77F-45A0-89E7-861F6D2D9E57}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoWCheck", "WoWCheck\WoWCheck.csproj", "{286F0142-D77F-45A0-89E7-861F6D2D9E57}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
