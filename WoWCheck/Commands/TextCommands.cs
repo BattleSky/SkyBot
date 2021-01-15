@@ -12,7 +12,6 @@ namespace WoWCheck.Commands
         [Command("hi")]
         public async Task GreetCommand(CommandContext ctx)
         {
-            if (ctx.Channel.Id != 241874656318062593) return;
             var author = ctx.User.Mention;
             await ctx.RespondAsync("Привет, " + author);
         }

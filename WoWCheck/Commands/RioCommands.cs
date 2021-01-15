@@ -11,7 +11,6 @@ namespace WoWCheck
         public async Task AffixCommand(CommandContext ctx)
         {
             var affixesModule = new AffixesModule();
-            if (ctx.Channel.Id != 241874656318062593) return;
             var embed = affixesModule.AffixRequest(ctx.User.AvatarUrl);
             await ctx.RespondAsync(embed: embed.Result);
         }
@@ -20,7 +19,6 @@ namespace WoWCheck
         public async Task RioCommand(CommandContext ctx, string name)
         {
             var MythisPlusModule = new MythicPlusModule();
-            if (ctx.Channel.Id != 241874656318062593) return;
             var embed = MythisPlusModule.MythicPlusRequest(ctx.User.AvatarUrl, name);
             await ctx.RespondAsync(embed: embed.Result);
         }
