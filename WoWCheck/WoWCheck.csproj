@@ -18,7 +18,7 @@
 
   <ItemGroup>
     <None Update="Discord.tkey">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="DiscordTEST.tkey">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

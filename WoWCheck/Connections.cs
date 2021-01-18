@@ -8,7 +8,12 @@ namespace WoWCheck
 {
     class Connections
     {
-        private string discordKeyPath = @"DiscordTEST.tkey";
+        #if DEBUG 
+        private readonly string discordKeyPath = @"DiscordTEST.tkey";
+        #else
+        private readonly string discordKeyPath = @"Discord.tkey";
+        #endif
+
         public static DiscordClient Discord = new Connections().CreateClient();
 
         public  DiscordClient CreateClient()
