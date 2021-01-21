@@ -70,14 +70,14 @@ namespace WoWCheck.RaiderIO
             embed.WithFooter("(c) Raider.IO", "https://cdnassets.raider.io/images/brand/Mark_2ColorWhite.png");
             if (stats.ErrorMessage != null)
             {
-                embed.AddField("Не получилось загрузить информацию", "Ответ сервера:\n" + stats.ErrorMessage);
+                embed.AddField("Не получилось загрузить информацию", "Ответ сервера:\n" + stats.ErrorMessage + 
+                                                                     "\n Проверьте верно ли вы ввели никнейм и сервер?\n Синтаксис:\n< -rio имя сервер >");
                 return embed;
             }
             embed.AddField("Имя", stats.Name, true);
             embed.AddField("Сервер", stats.Realm, true);
             embed.AddField("Специализация", stats.ActiveSpecName + " " + stats.Class, true);
-            var scores = stats.MythicPlusScoresBySeason[0].Scores; 
-            //         var rioScoreData = "DPS: " + scores.Dps + "\nHeal: " + scores.Healer + "\nTank: " + scores.Tank;
+            var scores = stats.MythicPlusScoresBySeason[0].Scores;
             embed.AddField("Рейтинг м+", "Урон: **" + scores.Dps + "**", true);
             embed.AddField("-", "Исцеление: **" + scores.Healer + "**", true);
             embed.AddField("-", "Танк: **" + scores.Tank + "**", true);
