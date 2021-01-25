@@ -71,12 +71,12 @@ namespace WoWCheck.Games
         private static int CalculateTankDamage()
         {
             var rnd = new Random();
-            return rnd.Next(16000);
+            return rnd.Next(16000) * 2;
         }
         private static int CalculateHeal()
         {
             var rnd = new Random();
-            return rnd.Next(16000);
+            return rnd.Next(16000) * 2;
         }
 
         private static DiscordEmbedBuilder TankIsDeadEmbed()
