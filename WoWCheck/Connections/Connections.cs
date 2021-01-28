@@ -9,7 +9,7 @@ namespace WoWCheck
     class Connections
     {
         #if DEBUG 
-        private readonly string discordKeyPath = @"DiscordTEST.tkey";
+        private readonly string discordKeyPath = @"Connections/DiscordTEST.tkey";
         #else
         private readonly string discordKeyPath = @"Discord.tkey";
         #endif

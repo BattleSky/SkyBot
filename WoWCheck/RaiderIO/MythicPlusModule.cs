@@ -91,7 +91,7 @@ namespace WoWCheck.RaiderIO
             var collectInformation = new StringBuilder();
             foreach (var bestRun in stats.MythicPlusBestRuns)
             {
-                var dungeonInRus = DungeonName.DungeonNameConverter(bestRun.Dungeon);
+                var dungeonInRus = DungeonName.DungeonNameSqlConverter(bestRun.Dungeon);
                 collectInformation.Append("**(" + bestRun.MythicLevel + "+" + bestRun.NumKeystoneUpgrades + ")** " + //bestRun.ShortName  +
                                           " *" + dungeonInRus + "*\n");
             }

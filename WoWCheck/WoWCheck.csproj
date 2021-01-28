@@ -14,14 +14,18 @@
   <ItemGroup>
     <PackageReference Include="DSharpPlus" Version="4.0.0-rc1" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-rc1" />
+    <PackageReference Include="MySql.Data" Version="8.0.23" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Discord.tkey">
+    <None Update="Connections\Discord.tkey">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="DiscordTEST.tkey">
+    <None Update="Connections\DiscordTEST.tkey">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Connections\sql_test.tkey">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using WoWCheck.Commands;
+using WoWCheck.Converters;
 using WoWCheck.RaiderIO;
 
 namespace WoWCheck
@@ -17,7 +18,6 @@ namespace WoWCheck
 
         private static async Task MainTask(string[] args)
         {
-            
             var commands = Connections.Discord.UseCommandsNext(new CommandsNextConfiguration()
             {
                 StringPrefixes = new[] { "-" }

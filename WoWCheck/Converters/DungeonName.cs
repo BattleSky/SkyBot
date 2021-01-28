@@ -6,7 +6,23 @@ namespace WoWCheck.Converters
 {
     class DungeonName
     {
+        public static string DungeonNameSqlConverter(string name)
+        {
+            var sql = new DatabaseConnection();
+            var dictionary = sql.Select("`translations`", "WHERE `default_name` = \"" + name + "\"", "ru");
+            try
+            {
+                return dictionary["ru"][0];
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return name;
+            }
+        }
+
         // Конвертер можно и нужно превратить в базу данных
+        [Obsolete]
         public static string DungeonNameConverter(string name)
         {
             var data = new Dictionary<string, string>
@@ -30,6 +46,8 @@ namespace WoWCheck.Converters
                 return name;
             }
         }
+
+
     }
 
     
