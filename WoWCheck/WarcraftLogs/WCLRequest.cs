@@ -12,7 +12,7 @@ namespace WoWCheck.RaiderIO
 
     class WCLRequest
     {
-        private static readonly string wclKeyPath = @"WCLKey.tkey";
+        private static readonly string wclKeyPath = @"Connections/WCLKey.tkey";
         public static async Task<HttpContent> Request(string url)
         {
             string wclToken;

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.ComponentModel.Design;
 using System.Data.Common;
 using System.Globalization;
 using System.IO;
@@ -55,7 +57,7 @@ namespace WoWCheck.WarcraftLogs
             DiscordEmbedBuilder embed;
             try
             {
-                embed = CreateEmbed(serializedStats, name, serverName);
+                embed = CreateEmbed(serializedStats, metric);
             }
             catch (Exception e)
             {
@@ -65,72 +67,110 @@ namespace WoWCheck.WarcraftLogs
             return embed;
         }
 
-        public DiscordEmbedBuilder CreateEmbed(List<PersonalLogsStats> stats, string playername, string servername)
+        public DiscordEmbedBuilder CreateEmbed(List<PersonalLogsStats> stats, string metric)
         {
+            var linkMetric = "healing-done";
+            var metricName = "исцеления";
+            if (metric == "dps")
+            {
+                linkMetric = "damage-done";
+                metricName = "нанесения урона";
+            }
+            
             var embed = new DiscordEmbedBuilder
             {
                 Color = new DiscordColor("#3AE6DB"),
-                Title = "Статистика логов WarcraftLogs",
+                Title = "Статистика " + metricName + " WarcraftLogs",
                 //Description = "11",
                 Timestamp = DateTime.UtcNow,
             };
 
+
             embed.WithFooter("(c) WarcraftLogs", "https://assets.rpglogs.com/img/warcraft/favicon.png");
+            if (stats.Count == 0)
+            {
+                embed.AddField("Не получилось загрузить информацию",
+                    "Возможно, за указанным персонажем отсутствуют закрепленные логи " +
+                    "или все его логи скрыты настройками приватности.");
+                embed.WithColor(new DiscordColor("#F90012"));
+                return embed;
+            }
             if (stats[0].Error != null)
             {
                 embed.AddField("Не получилось загрузить информацию", "Ответ сервера:\n" + stats[0].Error +
-                                                                     "\n Проверьте верно ли вы ввели никнейм и сервер?\n Синтаксис:\n< -logs метрика имя сервер >" +
+                                                                     "\n Проверьте, верно ли вы ввели никнейм и сервер?\n Синтаксис:\n< -logs метрика имя сервер >" +
                                                                      "\n Например -logs dps адэльвиль гордунни");
+                embed.WithColor(new DiscordColor("#F90012"));
                 return embed;
             }
-            embed.AddField("Имя/Сервер", playername + " " + servername, true);
+            embed.AddField("Имя", stats[0].CharacterName + "\n" + stats[0].Server, true);
+            embed.AddField("Класс", stats[0].Class + "\n", true);
+            BestRunsToFields(FindMostDifficulty(stats), embed, linkMetric);
             
-            embed.AddField("Лучшие результаты на боссах последнего рейда", BestRuns(FindMostDifficulty(stats)));
-
             return embed;
         }
-        public string BestRuns(List<PersonalLogsStats> killsAtMostDifficulty)
+        //public string BestRuns(Dictionary<long, PersonalLogsStats> killsAtMostDifficulty)
+        //{
+        //    var result = new StringBuilder();
+        //    foreach (var (_, value) in killsAtMostDifficulty)
+        //    {
+        //        Console.WriteLine(value.StartTime);
+        //        result.Append("-- **" + (int) value.Percentile + "** " + value.EncounterName +
+        //                      "(*" + (Difficulty) value.Difficulty + "*) **Ранг:** *"
+        //                      + value.Rank + "/" + value.OutOf + "* " + value.Spec + " " + 
+        //                      DateTimeOffset.FromUnixTimeMilliseconds(value.StartTime)
+        //                    //  + "\n"
+        //                      );
+        //    }
+
+        //    return result.ToString();
+        //}
+
+        public void BestRunsToFields(Dictionary<long, PersonalLogsStats> killsAtMostDifficulty, 
+            DiscordEmbedBuilder embed, string linkmetric)
         {
-            var result = new StringBuilder();
-            foreach (var kill in killsAtMostDifficulty)
+            foreach (var (_, value) in killsAtMostDifficulty)
             {
-                result.Append(kill.EncounterName + " " + (int)kill.Percentile + "\n");
+                var result = ("- **" + (int) value.Percentile + "** - "
+                              + value.Spec 
+                              + ", Уровень предметов: **" + value.IlvlKeyOrPatch 
+                              + "**, Ранг: *" + value.Rank + "/" + value.OutOf 
+                              + "*, Дата: "
+                              + DateTimeOffset.FromUnixTimeMilliseconds(value.StartTime).ToString("dd/MM/yy") 
+                              + ",  [Ссылка на бой](https://www.warcraftlogs.com/reports/" + value.ReportId + "#fight=" 
+                                + value.FightId + "&type=" + linkmetric + ")");
+               embed.AddField(value.EncounterName + " *(" + (Difficulty)value.Difficulty + ")*", result);
             }
-
-            return result.ToString();
         }
-
-        // Не очень элегантная сортировка, думай ещё
-        public List<PersonalLogsStats> FindMostDifficulty(List<PersonalLogsStats> stats)
+        public Dictionary<long, PersonalLogsStats> FindMostDifficulty(List<PersonalLogsStats> stats)
         {
-            var resultList = new List<PersonalLogsStats>();
+            // Для правильной сортировки нужно делать запросы в армори
+            // возможно, выйдет с помощью подключения базы данных с fightid, encounterid и именем босса
+            var resultDictionary = new Dictionary<long, PersonalLogsStats>();
             foreach (var e in stats)
             {
-                foreach (var oneResult in resultList)
-                {
-                    if (oneResult.EncounterId == e.EncounterId)
-                        if (oneResult.Difficulty < e.Difficulty)
-                            resultList.Remove(oneResult); // не удаляет. Нужно чтобы было для разных спеков и удаление низких сложностей
+                if (resultDictionary.ContainsKey(e.EncounterId))
+                {   
+                    // Если совпадает encounterId и при этом записанная сложность ниже
+                    // или процентиль ниже при той же сложности - удаляем из сортировки
+                     if (resultDictionary[e.EncounterId].Difficulty < e.Difficulty ||
+                            (resultDictionary[e.EncounterId].Percentile < e.Percentile && resultDictionary[e.EncounterId].Difficulty == e.Difficulty))
+                        resultDictionary.Remove(e.EncounterId);
+                     else continue;
                 }
-                resultList.Add(e);
+                resultDictionary.Add(e.EncounterId, e);
             }
 
-            return resultList;
+            return resultDictionary;
         }
 
     }
     public enum Difficulty
     {
-        LFR = 2,
-        N,
-        H,
-        M,
-    }
-
-    public class SerializedStats
-    {
-        public string EncounterName { get; set; }
-        public string 
+        ПоискГруппы = 2,
+        Нормальный,
+        Героический,
+        Эпохальный,
     }
 
     #region Автогенерированный код
@@ -197,6 +237,7 @@ namespace WoWCheck.WarcraftLogs
 
         [JsonProperty("error")]
         public string Error { get; set; }
+
     }
 
     public partial class PersonalLogsStats
@@ -223,3 +264,9 @@ namespace WoWCheck.WarcraftLogs
     }
     #endregion
 }
+//foreach (var oneResult in resultDictionary)
+//{
+//    if (resultDictionary.ContainsKey())
+//        if (oneResult.Difficulty < e.Difficulty)
+//            resultList.Remove(oneResult); // не удаляет. Нужно чтобы было для разных спеков и удаление низких сложностей
+//}
