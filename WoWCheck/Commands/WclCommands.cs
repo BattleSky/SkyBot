@@ -20,9 +20,8 @@ namespace WoWCheck
         [Command("logs")]
         public async Task LogsCommand(CommandContext ctx, string metric, string name, params string[] serverName)
         {
-            throw new NotImplementedException();
-            var mythicPlusModule = new MythicPlusModule();
-            var embed = mythicPlusModule.MythicPlusRequest(name, serverName);
+            var warcraftLogsModule = new PersonalLogsModule();
+            var embed = warcraftLogsModule.PersonalLogsRequest(name, metric, serverName);
             await ctx.RespondAsync(embed: embed.Result);
         }
     }

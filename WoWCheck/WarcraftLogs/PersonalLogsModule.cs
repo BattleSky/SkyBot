@@ -69,7 +69,7 @@ namespace WoWCheck.WarcraftLogs
 
         public DiscordEmbedBuilder CreateEmbed(List<PersonalLogsStats> stats, string metric)
         {
-            var linkMetric = "healing-done";
+            var linkMetric = "healing";
             var metricName = "исцеления";
             if (metric == "dps")
             {
@@ -133,8 +133,8 @@ namespace WoWCheck.WarcraftLogs
             {
                 var result = ("- **" + (int) value.Percentile + "** - "
                               + value.Spec 
-                              + ", Уровень предметов: **" + value.IlvlKeyOrPatch 
-                              + "**, Ранг: *" + value.Rank + "/" + value.OutOf 
+                              + ", Ур. предметов: **" + value.IlvlKeyOrPatch 
+                              + "**, Позиция: *" + value.Rank + "/" + value.OutOf 
                               + "*, Дата: "
                               + DateTimeOffset.FromUnixTimeMilliseconds(value.StartTime).ToString("dd/MM/yy") 
                               + ",  [Ссылка на бой](https://www.warcraftlogs.com/reports/" + value.ReportId + "#fight=" 
