@@ -39,7 +39,7 @@ namespace WoWCheck.RaiderIO
                 embed.AddField(namePlusAffixLevel, detail.Description);
                 counter++;
             }
-            embed.WithFooter("by Raider.IO", avatarUrl);
+            embed.WithFooter("by Raider.IO", "https://cdnassets.raider.io/images/brand/Mark_2ColorWhite.png");
                 
             return embed;
         }

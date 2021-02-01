@@ -25,6 +25,7 @@ namespace WoWCheck
             commands.RegisterCommands<RioCommands>();
             commands.RegisterCommands<TextCommands>();
             commands.RegisterCommands<FunCommands>();
+            commands.RegisterCommands<WclCommands>();
 
             await Connections.Discord.ConnectAsync();
             await Task.Delay(-1);

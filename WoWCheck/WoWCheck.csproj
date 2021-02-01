@@ -19,7 +19,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Connections\Discord.tkey">
+    <None Update="Connections\DiscordTEST.tkey">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Connections\WCLKey.tkey">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Discord.tkey">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="Connections\DiscordTEST.tkey">
