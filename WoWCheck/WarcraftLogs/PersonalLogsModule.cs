@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.ComponentModel.Design;
-using System.Data.Common;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using System.Xml;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -53,7 +47,7 @@ namespace WoWCheck.WarcraftLogs
 
             using var reader = new StreamReader(await responseContent.ReadAsStreamAsync());
             var serializedStats = PersonalLogsStats.FromJson(await reader.ReadToEndAsync());
-            // туть
+
             DiscordEmbedBuilder embed;
             try
             {
