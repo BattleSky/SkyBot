@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using System.Web;
 using DSharpPlus.Entities;
@@ -120,23 +122,37 @@ namespace WoWCheck.WarcraftLogs
         //    return result.ToString();
         //}
 
-        public void BestRunsToFields(Dictionary<long, PersonalLogsStats> killsAtMostDifficulty, 
+        public void BestRunsToFields(Dictionary<int, PersonalLogsStats> kills, 
             DiscordEmbedBuilder embed, string linkmetric)
         {
-            foreach (var (_, value) in killsAtMostDifficulty)
+            for (var i = 1; i <= kills.Count; i++)
             {
-                var result = ("- **" + (int) value.Percentile + "** - "
-                              + value.Spec 
-                              + ", Ур. предметов: **" + value.IlvlKeyOrPatch 
-                              + "**, Позиция: *" + value.Rank + "/" + value.OutOf 
+                var result = ("- **" + (int)kills[i].Percentile + "** - "
+                              + kills[i].Spec
+                              + ", Ур. предметов: **" + kills[i].IlvlKeyOrPatch
+                              + "**, Позиция: *" + kills[i].Rank + "/" + kills[i].OutOf
                               + "*, Дата: "
-                              + DateTimeOffset.FromUnixTimeMilliseconds(value.StartTime).ToString("dd/MM/yy") 
-                              + ",  [Ссылка на бой](https://www.warcraftlogs.com/reports/" + value.ReportId + "#fight=" 
-                                + value.FightId + "&type=" + linkmetric + ")");
-               embed.AddField(value.EncounterName + " *(" + (Difficulty)value.Difficulty + ")*", result);
+                              + DateTimeOffset.FromUnixTimeMilliseconds(kills[i].StartTime).ToString("dd/MM/yy")
+                              + ",  [Ссылка на бой](https://www.warcraftlogs.com/reports/" + kills[i].ReportId + "#fight="
+                              + kills[i].FightId + "&type=" + linkmetric + ")");
+                embed.AddField(kills[i].EncounterName + " *(" + (Difficulty)kills[i].Difficulty + ")*", result);
             }
+
+
+            //foreach (var (_, value) in kills)
+            //{
+            //    var result = ("- **" + (int) value.Percentile + "** - "
+            //                  + value.Spec 
+            //                  + ", Ур. предметов: **" + value.IlvlKeyOrPatch 
+            //                  + "**, Позиция: *" + value.Rank + "/" + value.OutOf 
+            //                  + "*, Дата: "
+            //                  + DateTimeOffset.FromUnixTimeMilliseconds(value.StartTime).ToString("dd/MM/yy") 
+            //                  + ",  [Ссылка на бой](https://www.warcraftlogs.com/reports/" + value.ReportId + "#fight=" 
+            //                    + value.FightId + "&type=" + linkmetric + ")");
+            //   embed.AddField(value.EncounterName + " *(" + (Difficulty)value.Difficulty + ")*", result);
+            //}
         }
-        public Dictionary<long, PersonalLogsStats> FindMostDifficulty(List<PersonalLogsStats> stats)
+        private Dictionary<int, PersonalLogsStats> FindMostDifficulty(List<PersonalLogsStats> stats)
         {
             // Для правильной сортировки нужно делать запросы в армори
             // возможно, выйдет с помощью подключения базы данных с fightid, encounterid и именем босса
@@ -154,11 +170,26 @@ namespace WoWCheck.WarcraftLogs
                 }
                 resultDictionary.Add(e.EncounterId, e);
             }
-
-            return resultDictionary;
+            
+            return TranslatorAndSerializer(resultDictionary);
         }
-
+        private Dictionary<int, PersonalLogsStats> TranslatorAndSerializer(Dictionary<long, PersonalLogsStats> SortedStats)
+        {
+            var rightDict = new Dictionary<int, PersonalLogsStats>();
+            foreach (var (_,value) in SortedStats)
+            {
+                var (order, name) = BossNameWithOrder.BossNameSqlConverter(value.EncounterName);
+                value.EncounterName = name;
+                rightDict.Add(order, value);
+            }
+            return rightDict;
+        }
     }
+
+
+
+
+
     public enum Difficulty
     {
         ПоискГруппы = 2,
@@ -231,7 +262,6 @@ namespace WoWCheck.WarcraftLogs
 
         [JsonProperty("error")]
         public string Error { get; set; }
-
     }
 
     public partial class PersonalLogsStats
