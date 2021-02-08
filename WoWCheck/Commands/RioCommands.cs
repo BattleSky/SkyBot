@@ -8,6 +8,7 @@ namespace WoWCheck
     public class RioCommands : BaseCommandModule
     {
         [Command("affix")]
+        [Description("Список модификаторов эпохальных+ подземелий на этой неделе")]
         public async Task AffixCommand(CommandContext ctx)
         {
             var affixesModule = new AffixesModule();
@@ -16,6 +17,7 @@ namespace WoWCheck
         }
 
         [Command("rio")]
+        [Description("Актуальная информация об игроке: рейтинг Raider.IO и лучшие закрытые подземелья.\n Синтаксис: `-rio имя сервер`\nДля Гордунни можно не указывать сервер.\nНапример: `-rio Адэльвиль Гордунни`")]
         public async Task RioCommand(CommandContext ctx, string name)
         {
             var mythicPlusModule = new MythicPlusModule();

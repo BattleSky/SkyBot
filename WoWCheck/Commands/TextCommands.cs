@@ -10,6 +10,7 @@ namespace WoWCheck.Commands
     class TextCommands : BaseCommandModule
     {
         [Command("hi")]
+        [Description("Поприветствуй бота!")]
         public async Task GreetCommand(CommandContext ctx)
         {
             var author = ctx.User.Mention;

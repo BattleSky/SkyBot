@@ -21,9 +21,7 @@ namespace WoWCheck.RaiderIO
         {
             string serverName;
             try
-            {
-                serverName = ServerName.RioServerNameConvert(serverNameInput);
-            }
+            { serverName = ServerName.RioServerNameConvert(serverNameInput); }
             catch (Exception e)
             {
                 return new DiscordEmbedBuilder

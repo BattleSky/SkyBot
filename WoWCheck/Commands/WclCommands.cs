@@ -11,6 +11,7 @@ namespace WoWCheck
     {
 
         [Command("logs")]
+        [Description("Актуальная информация об игроке: статистика логов с WarcraftLogs.\n Синтаксис: `-logs метрика имя сервер `, где `метрика` это `dps` или `hps` - статистика урона и исцеления соответственно.\nДля Гордунни можно не указывать сервер.\nНапример: `-logs dps Адэльвиль Гордунни`")]
         public async Task LogsCommand(CommandContext ctx, string metric, string name)
         {
             var warcraftLogsModule = new PersonalLogsModule();

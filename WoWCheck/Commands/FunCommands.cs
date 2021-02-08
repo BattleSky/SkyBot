@@ -9,6 +9,7 @@ namespace WoWCheck.Commands
     class FunCommands : BaseCommandModule
     {
         [Command("смотринаменя")]
+        [Description("Заставляет бота посмотреть на вас.")]
         public async Task StatusLookingAt(CommandContext ctx)
         {
             var activity = new DiscordActivity(" на " + ctx.Member.DisplayName, ActivityType.Watching);
@@ -18,6 +19,7 @@ namespace WoWCheck.Commands
         }
 
         [Command("heal")]
+        [Description("Запустить исцеляй-игру или исцелить в ней.")]
         public async Task HealGameCommand(CommandContext ctx)
         {
             if (!HealGame.IsGameActive)
