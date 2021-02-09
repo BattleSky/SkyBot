@@ -25,8 +25,8 @@ namespace WoWCheck.WarcraftLogs
                 serverName = ServerName.WclServerNameConvert(serverNameInput);
 
                 if (metric != "dps" && metric != "hps")
-                    throw new ArgumentException("Указана неверная метрика. Требуется указать либо \"dps\" либо \"hps\" \n " +
-                                                "Например: -logs dps адэльвиль гордунни");
+                    throw new ArgumentException("Указана неверная метрика. Требуется указать либо `dps` либо `hps` \n " +
+                                                "Например: `-logs dps адэльвиль гордунни`");
             }
             catch (Exception e)
             {
@@ -62,7 +62,6 @@ namespace WoWCheck.WarcraftLogs
             }
             return embed;
         }
-
         public DiscordEmbedBuilder CreateEmbed(List<PersonalLogsStats> stats, string metric)
         {
             var linkMetric = "healing";
@@ -94,8 +93,8 @@ namespace WoWCheck.WarcraftLogs
             if (stats[0].Error != null)
             {
                 embed.AddField("Не получилось загрузить информацию", "Ответ сервера:\n" + stats[0].Error +
-                                                                     "\n Проверьте, верно ли вы ввели никнейм и сервер?\n Синтаксис:\n< -logs метрика имя сервер >" +
-                                                                     "\n Например -logs dps адэльвиль гордунни");
+                                                                     "\n Проверьте, верно ли вы ввели никнейм и сервер?\n Синтаксис: `-logs метрика имя сервер`" +
+                                                                     "\n Например, `-logs dps адэльвиль гордунни`");
                 embed.WithColor(new DiscordColor("#F90012"));
                 return embed;
             }
@@ -137,25 +136,9 @@ namespace WoWCheck.WarcraftLogs
                               + kills[i].FightId + "&type=" + linkmetric + ")");
                 embed.AddField(kills[i].EncounterName + " *(" + (Difficulty)kills[i].Difficulty + ")*", result);
             }
-
-
-            //foreach (var (_, value) in kills)
-            //{
-            //    var result = ("- **" + (int) value.Percentile + "** - "
-            //                  + value.Spec 
-            //                  + ", Ур. предметов: **" + value.IlvlKeyOrPatch 
-            //                  + "**, Позиция: *" + value.Rank + "/" + value.OutOf 
-            //                  + "*, Дата: "
-            //                  + DateTimeOffset.FromUnixTimeMilliseconds(value.StartTime).ToString("dd/MM/yy") 
-            //                  + ",  [Ссылка на бой](https://www.warcraftlogs.com/reports/" + value.ReportId + "#fight=" 
-            //                    + value.FightId + "&type=" + linkmetric + ")");
-            //   embed.AddField(value.EncounterName + " *(" + (Difficulty)value.Difficulty + ")*", result);
-            //}
         }
         private Dictionary<int, PersonalLogsStats> FindMostDifficulty(List<PersonalLogsStats> stats)
         {
-            // Для правильной сортировки нужно делать запросы в армори
-            // возможно, выйдет с помощью подключения базы данных с fightid, encounterid и именем босса
             var resultDictionary = new Dictionary<long, PersonalLogsStats>();
             foreach (var e in stats)
             {
@@ -185,11 +168,7 @@ namespace WoWCheck.WarcraftLogs
             return rightDict;
         }
     }
-
-
-
-
-
+    
     public enum Difficulty
     {
         ПоискГруппы = 2,
@@ -288,9 +267,3 @@ namespace WoWCheck.WarcraftLogs
     }
     #endregion
 }
-//foreach (var oneResult in resultDictionary)
-//{
-//    if (resultDictionary.ContainsKey())
-//        if (oneResult.Difficulty < e.Difficulty)
-//            resultList.Remove(oneResult); // не удаляет. Нужно чтобы было для разных спеков и удаление низких сложностей
-//}
