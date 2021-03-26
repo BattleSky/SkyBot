@@ -18,7 +18,7 @@ namespace WoWCheck.Connections
 #if DEBUG
         private const string Sql = @"Connections/sql_test.tkey";
 #else
-        private const string Sql = @"sql.tkey";
+        private const string Sql = @"Connections/sql.tkey";
 #endif
 
 

@@ -10,7 +10,7 @@ namespace WoWCheck.Connections
         #if DEBUG 
         private readonly string discordKeyPath = @"Connections/DiscordTEST.tkey";
         #else
-        private readonly string discordKeyPath = @"Discord.tkey";
+        private readonly string discordKeyPath = @"Connections/Discord.tkey";
         #endif
 
         public static DiscordClient Discord = new Connections().CreateClient();
