@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace WoWCheck.Connections
 {
-    class Connections
+    internal class Connections
     {
         #if DEBUG 
         private readonly string discordKeyPath = @"Connections/DiscordTEST.tkey";
@@ -15,7 +15,7 @@ namespace WoWCheck.Connections
 
         public static DiscordClient Discord = new Connections().CreateClient();
 
-        public  DiscordClient CreateClient()
+        public DiscordClient CreateClient()
         {
             string discordToken;
             try
