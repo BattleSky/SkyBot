@@ -108,8 +108,7 @@ namespace WoWCheck.Games
                 _ when damageToTank < 7000 => "Танк хотел увернуться, но не вышло.",
                 _ when damageToTank < 9000 => "Танк забыл прожаться! Слишком много кнопок!",
                 _ when damageToTank < 12000 => "Танку выбили зуб, но он держится. И вы держитесь.",
-                _ when damageToTank >= 12000 => "Босс использовал против танка незаконный приём! Ух, тяжело.",
-                _ => ""
+                _ when true => "Босс использовал против танка незаконный приём! Ух, тяжело."
             };
             return resultMessage;
         }
@@ -124,8 +123,7 @@ namespace WoWCheck.Games
                 _ when healingDone < 7000 => ctx.User.Mention + " прилепил на танка пластырь.",
                 _ when healingDone < 9000 => ctx.User.Mention + " похилил потому что может.",
                 _ when healingDone < 12000 => ctx.User.Mention + " прожал мощную исцеляшку! А он неплох!",
-                _ when healingDone >= 12000 => ctx.User.Mention + ", красава!",
-                _ => ""
+                _ when true => ctx.User.Mention + ", красава!",
             };
             return resultMessage;
         }

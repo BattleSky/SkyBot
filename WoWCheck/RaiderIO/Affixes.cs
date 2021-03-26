@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using MySql.Data.MySqlClient;
@@ -16,7 +14,10 @@ namespace WoWCheck.RaiderIO
     class AffixesModule
     {
         #region Запрос и обработка
-        // Запрос данных и возврат их в качестве поля 
+        /// <summary>
+        /// Запрос данных и возврат их в качестве поля 
+        /// </summary>
+        /// <returns></returns>
         public async Task<DiscordEmbedBuilder> AffixRequest()
         {
             
@@ -48,7 +49,7 @@ namespace WoWCheck.RaiderIO
                 }
             }
             embed.WithFooter("by Raider.IO", "https://cdnassets.raider.io/images/brand/Mark_2ColorWhite.png");
-            embed.AddField("Аффиксы следующей недели:", NextWeekAffix(affix4, affix7));
+            embed.AddField("Модификаторы следующей недели:", NextWeekAffix(affix4, affix7));
             return embed;
         }
 
@@ -95,10 +96,11 @@ namespace WoWCheck.RaiderIO
                 throw;
             }
 
-            var result = sqlResult[resultColumns[0]] + ", "
-                                                     + sqlResult[resultColumns[1]] + ", "
-                                                     + sqlResult[resultColumns[2]] + ", "
-                                                     + sqlResult[resultColumns[3]] + ".";
+            var result = 
+                sqlResult[resultColumns[0]] + ", " 
+                                            + sqlResult[resultColumns[1]] + ", "
+                                            + sqlResult[resultColumns[2]] + ", "
+                                            + sqlResult[resultColumns[3]] + ".";
 
             return result;
         }
@@ -124,7 +126,6 @@ namespace WoWCheck.RaiderIO
 
             [JsonProperty("description")]
             public string Description { get; set; }
-
         }
 
         public partial class Affixes
