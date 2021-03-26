@@ -14,8 +14,8 @@ namespace WoWCheck.Commands
         {
             var activity = new DiscordActivity(" на " + ctx.Member.DisplayName, ActivityType.Watching);
             // При шардировании надо будет изменить эмодзю
-            await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(Connections.Discord, ":angry_eyes:"));
-            await Connections.Discord.UpdateStatusAsync(activity);
+            await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(Connections.Connections.Discord, ":angry_eyes:"));
+            await Connections.Connections.Discord.UpdateStatusAsync(activity);
         }
 
         [Command("heal")]

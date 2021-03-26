@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
-using DSharpPlus.Entities;
 
 namespace WoWCheck.Converters
 {
@@ -53,8 +51,8 @@ namespace WoWCheck.Converters
                     throw new ArgumentException("Использованы неподдерживаемые символы или имя было слишком длинное");
                 if (servername[i].Contains("-") || servername[i].Contains("'"))
                 {
-                    servername[i].Replace("-", "");
-                    servername[i].Replace("'", "");
+                    servername[i] = servername[i].Replace("-", "");
+                    servername[i] = servername[i].Replace("'", "");
                 }
 
                 result.Append(servername[i].ToLower());

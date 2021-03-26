@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 
@@ -14,7 +11,7 @@ namespace WoWCheck.Games
         private static int MaxTankHp => 50000;
         private static int CurrentTankHp { get; set; }
         public static bool IsGameActive => (CurrentTankHp > 0 && CurrentTankHp < MaxTankHp);
-        //      public static List<string> Logging;
+
 
         public static DiscordEmbedBuilder InitializeHealGame()
         {
@@ -22,13 +19,13 @@ namespace WoWCheck.Games
             var rnd = new Random();
             var color = "какого-то";
             CurrentTankHp = rnd.Next(MinTankHp, MaxTankHp-5000);
+
             if (CurrentTankHp < 32000)
                 color = "зеленого";
             else if(CurrentTankHp >= 32000 && CurrentTankHp <= 39000)
                 color = "синего";
             else if (CurrentTankHp > 39000)
                 color = "эпического";
-//            Logging = new List<string>() {"Создан танк с " + CurrentTankHp + " здоровья."};
             var embed = new DiscordEmbedBuilder
             {
                 Color = new DiscordColor("#3AE6DB"),
@@ -56,7 +53,6 @@ namespace WoWCheck.Games
             {
                 Color = new DiscordColor("#3AE6DB"),
                 Title = "Результат боя",
-                //Description = "Жизнь тлен. Особенно танка. И не жизнь вовсе.",
                 Timestamp = DateTime.UtcNow
             };
             if (CurrentTankHp >= MaxTankHp)
@@ -88,14 +84,6 @@ namespace WoWCheck.Games
                 Description = "Жизнь тлен. Особенно танка. И не жизнь вовсе.",
                 Timestamp = DateTime.UtcNow
             };
-            //var resultBuilder = new StringBuilder();
-            //foreach (var log in Logging)
-            //{
-            //    resultBuilder.Append(log + "\n");
-            //}
-            //embed.AddField("Лог", resultBuilder.ToString());
-
-
             return embed;
         }
 
@@ -108,55 +96,38 @@ namespace WoWCheck.Games
                 Description = "Ура!",
                 Timestamp = DateTime.UtcNow
             };
-            //var resultBuilder = new StringBuilder();
-            //foreach (var log in Logging)
-            //{
-            //    resultBuilder.Append(log + "\n");
-            //}
-            //embed.AddField("Лог", resultBuilder.ToString());
             return embed;
         }
         
         private static string MessageTankDamage(int damageToTank)
         {
-            var resultMessage = "";
-            if (damageToTank == 0)
-                resultMessage = "Босс промахнулся. Куда он вообще смотрит?";
-            else if (damageToTank > 0 && damageToTank < 3000)
-                resultMessage = "Танк получил небольшой урон! Похильте, ему грустно!";
-            else if (damageToTank >= 3000 && damageToTank < 7000)
-                resultMessage = "Танк хотел увернуться, но не вышло.";
-            else if (damageToTank >= 7000 && damageToTank < 9000)
-                resultMessage = "Танк забыл прожаться! Слишком много кнопок!";
-            else if (damageToTank >= 9000 && damageToTank < 12000)
-                resultMessage = "Танку выбили зуб, но он держится. И вы держитесь.";
-            else if (damageToTank >= 12000)
-                resultMessage = "Босс использовал против танка незаконный приём! Ух, тяжело.";
-
+            var resultMessage = damageToTank switch
+            {
+                _ when damageToTank <= 0 => "Босс промахнулся. Куда он вообще смотрит?",
+                _ when damageToTank < 3000 => "Танк получил небольшой урон! Похильте, ему грустно!",
+                _ when damageToTank < 7000 => "Танк хотел увернуться, но не вышло.",
+                _ when damageToTank < 9000 => "Танк забыл прожаться! Слишком много кнопок!",
+                _ when damageToTank < 12000 => "Танку выбили зуб, но он держится. И вы держитесь.",
+                _ when damageToTank >= 12000 => "Босс использовал против танка незаконный приём! Ух, тяжело.",
+                _ => ""
+            };
             return resultMessage;
         }
 
         private static string MessageHealingDone(int healingDone, CommandContext ctx)
         {
-            var resultMessage = "";
-            if (healingDone == 0)
-                resultMessage = ctx.User.Mention + " исцелил себя вместо танка. Уверен, что хил - это для тебя?";
-            else if (healingDone > 0 && healingDone < 3000)
-                resultMessage = ctx.User.Mention + " задел танка АОЕ исцелением.";
-            else if (healingDone >= 3000 && healingDone < 7000)
-                resultMessage = ctx.User.Mention + " прилепил на танка пластырь.";
-            else if (healingDone >= 7000 && healingDone < 9000)
-                resultMessage = ctx.User.Mention + " похилил потому что может.";
-            else if (healingDone >= 9000 && healingDone < 12000)
-                resultMessage = ctx.User.Mention + " прожал мощную исцеляшку! А ты неплох!";
-            else if (healingDone >= 12000)
-                resultMessage = ctx.User.Mention + ", красава!";
-
+            var resultMessage = healingDone switch
+            {
+                _ when healingDone <= 0 => ctx.User.Mention +
+                                           " исцелил себя вместо танка. Уверен, что хил - это для тебя?",
+                _ when healingDone < 3000 => ctx.User.Mention + " задел танка АОЕ исцелением.",
+                _ when healingDone < 7000 => ctx.User.Mention + " прилепил на танка пластырь.",
+                _ when healingDone < 9000 => ctx.User.Mention + " похилил потому что может.",
+                _ when healingDone < 12000 => ctx.User.Mention + " прожал мощную исцеляшку! А он неплох!",
+                _ when healingDone >= 12000 => ctx.User.Mention + ", красава!",
+                _ => ""
+            };
             return resultMessage;
         }
-
-
-
-
     }
 }

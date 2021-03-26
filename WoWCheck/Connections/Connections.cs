@@ -3,8 +3,7 @@ using System.IO;
 using DSharpPlus;
 using Microsoft.Extensions.Logging;
 
-
-namespace WoWCheck
+namespace WoWCheck.Connections
 {
     class Connections
     {
@@ -21,8 +20,8 @@ namespace WoWCheck
             string discordToken;
             try
             {
-                using (StreamReader sr = new StreamReader(discordKeyPath))
-                    discordToken = sr.ReadToEnd();
+                using var sr = new StreamReader(discordKeyPath);
+                discordToken = sr.ReadToEnd();
             }
             catch (Exception e)
             {
@@ -32,8 +31,12 @@ namespace WoWCheck
             var discord = new DiscordClient(new DiscordConfiguration
             {
                 Token = discordToken,
-                TokenType = TokenType.Bot,
+                TokenType = TokenType.Bot, 
+#if DEBUG
                 MinimumLogLevel = LogLevel.Debug
+#else
+                MinimumLogLevel = LogLevel.Warning
+#endif
             });
             return discord;
         }

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using WoWCheck.RaiderIO;
 using WoWCheck.WarcraftLogs;
 
-namespace WoWCheck
+namespace WoWCheck.Commands
 {
     public class WclCommands : BaseCommandModule
     {

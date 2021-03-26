@@ -61,7 +61,6 @@ namespace WoWCheck.RaiderIO
             {
                 Color = new DiscordColor("#3AE6DB"),
                 Title = "Статистика Raider.IO",
-                //Description = "11",
                 Timestamp = DateTime.UtcNow,
             };
 
@@ -75,7 +74,7 @@ namespace WoWCheck.RaiderIO
             embed.AddField("Имя", stats.Name, true);
             embed.AddField("Сервер", stats.Realm, true);
             embed.AddField("Специализация", stats.ActiveSpecName + " " + stats.Class, true);
-            var scores = stats.MythicPlusScoresBySeason[0].Scores;
+            var scores = stats.MythicPlusScoresBySeasonList[0].Scores;
             embed.AddField("Рейтинг м+", "Урон: **" + scores.Dps + "**", true);
             embed.AddField("-", "Исцеление: **" + scores.Healer + "**", true);
             embed.AddField("-", "Танк: **" + scores.Tank + "**", true);
@@ -90,11 +89,11 @@ namespace WoWCheck.RaiderIO
             foreach (var bestRun in stats.MythicPlusBestRuns)
             {
                 var dungeonInRus = DungeonName.DungeonNameSqlConverter(bestRun.Dungeon);
-                collectInformation.Append("**(" + bestRun.MythicLevel + "+" + bestRun.NumKeystoneUpgrades + ")** " + //bestRun.ShortName  +
+                collectInformation.Append("**(" + bestRun.MythicLevel + "+" + bestRun.NumKeystoneUpgrades + ")** " +
                                           " *" + dungeonInRus + "*\n");
             }
             var result = collectInformation.ToString();
-            if (result == "" || result == null)
+            if (string.IsNullOrEmpty(result))
                 result = "Персонаж не закрывал значимых подземелий с ключом";
             return result;
         }
@@ -102,7 +101,7 @@ namespace WoWCheck.RaiderIO
 
         #endregion
 
-        #region Автогенерированный код
+        #region Автогенерированный код (объект парсинга json)
 
         public partial class MythicPlusStats
         {
@@ -152,7 +151,7 @@ namespace WoWCheck.RaiderIO
             public string ProfileBanner { get; set; }
 
             [JsonProperty("mythic_plus_scores_by_season")]
-            public List<MythicPlusScoresBySeason> MythicPlusScoresBySeason { get; set; }
+            public List<MythicPlusScoresBySeason> MythicPlusScoresBySeasonList { get; set; }
 
             [JsonProperty("mythic_plus_best_runs")]
             public List<MythicPlusBestRun> MythicPlusBestRuns { get; set; }
@@ -161,7 +160,7 @@ namespace WoWCheck.RaiderIO
             public string ErrorMessage { get; set; }
         }
 
-        public partial class MythicPlusBestRun
+        public class MythicPlusBestRun
         {
             [JsonProperty("dungeon")]
             public string Dungeon { get; set; }
@@ -194,7 +193,7 @@ namespace WoWCheck.RaiderIO
             public Uri Url { get; set; }
         }
 
-        public partial class Affix
+        public class Affix
         {
             [JsonProperty("id")]
             public long Id { get; set; }
@@ -209,7 +208,7 @@ namespace WoWCheck.RaiderIO
             public Uri WowheadUrl { get; set; }
         }
 
-        public partial class MythicPlusScoresBySeason
+        public class MythicPlusScoresBySeason
         {
             [JsonProperty("season")]
             public string Season { get; set; }
@@ -218,7 +217,7 @@ namespace WoWCheck.RaiderIO
             public Scores Scores { get; set; }
         }
 
-        public partial class Scores
+        public class Scores
         {
             [JsonProperty("all")]
             public long All { get; set; }
@@ -257,9 +256,9 @@ namespace WoWCheck.RaiderIO
                 MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
                 DateParseHandling = DateParseHandling.None,
                 Converters =
-            {
+                {
                 new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
-            },
+                },
             };
         }
 

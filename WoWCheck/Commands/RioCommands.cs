@@ -3,7 +3,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using WoWCheck.RaiderIO;
 
-namespace WoWCheck
+namespace WoWCheck.Commands
 {
     public class RioCommands : BaseCommandModule
     {
@@ -12,7 +12,7 @@ namespace WoWCheck
         public async Task AffixCommand(CommandContext ctx)
         {
             var affixesModule = new AffixesModule();
-            var embed = affixesModule.AffixRequest(ctx.User.AvatarUrl);
+            var embed = affixesModule.AffixRequest();
             await ctx.RespondAsync(embed: embed.Result);
         }
 

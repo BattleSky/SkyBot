@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using MySql.Data.MySqlClient;
 
-namespace WoWCheck
+namespace WoWCheck.Connections
 {
     class DatabaseConnection
     {
@@ -13,12 +13,12 @@ namespace WoWCheck
         {
             Initialize();
         }
-        private MySqlConnection connection;
+        public MySqlConnection Connection { get; private set; }
 
 #if DEBUG
-        private readonly string sql = @"Connections/sql_test.tkey";
+        private const string Sql = @"Connections/sql_test.tkey";
 #else
-        private readonly string sql = @"sql.tkey";
+        private const string Sql = @"sql.tkey";
 #endif
 
 
@@ -26,17 +26,17 @@ namespace WoWCheck
         private void Initialize()
         {
             string connectionString;
-            using (StreamReader sr = new StreamReader(sql))
+            using (var sr = new StreamReader(Sql))
                connectionString = sr.ReadToEnd();
-            connection = new MySqlConnection(connectionString);
+            Connection = new MySqlConnection(connectionString);
         }
 
         //open connection to database
-        private bool OpenConnection()
+        public bool OpenConnection()
         {
             try
             {
-                connection.Open();
+                Connection.Open();
                 return true;
             }
             catch (MySqlException ex)
@@ -61,17 +61,16 @@ namespace WoWCheck
         }
 
         //Close connection
-        private bool CloseConnection()
+        public void CloseConnection()
         {
             try
             {
-                connection.Close();
-                return true;
+                Connection.Close();
             }
             catch (MySqlException ex)
             {
                 Console.WriteLine(ex.Message);
-                return false;
+
             }
         }
 
@@ -81,20 +80,16 @@ namespace WoWCheck
         /// <param name="query">Полностью подготовленный запрос</param>
         public void Insert(string query)
         {
-            //string query = "INSERT INTO wowcheck.translations (`default_name`, `ru`) VALUES('Halls of Atonement', 'Чертоги покаяния')";
-
             //open connection
-            if (this.OpenConnection() == true)
-            {
-                //create command and assign the query and connection from the constructor
-                MySqlCommand cmd = new MySqlCommand(query, connection);
+            if (this.OpenConnection() != true) return;
+            //create command and assign the query and connection from the constructor
+            var cmd = new MySqlCommand(query, Connection);
 
-                //Execute command
-                cmd.ExecuteNonQuery();
+            //Execute command
+            cmd.ExecuteNonQuery();
 
-                //close connection
-                this.CloseConnection();
-            }
+            //close connection
+            this.CloseConnection();
         }
 
         /// <summary>
@@ -105,21 +100,15 @@ namespace WoWCheck
         {
 
             //Open connection
-            if (this.OpenConnection() == true)
-            {
-                //create mysql command
-                MySqlCommand cmd = new MySqlCommand();
-                //Assign the query using CommandText
-                cmd.CommandText = query;
-                //Assign the connection using Connection
-                cmd.Connection = connection;
+            if (this.OpenConnection() != true) return;
+            //create mysql command
+            var cmd = new MySqlCommand {CommandText = query, Connection = Connection};
 
-                //Execute query
-                cmd.ExecuteNonQuery();
+            //Execute query
+            cmd.ExecuteNonQuery();
 
-                //close connection
-                this.CloseConnection();
-            }
+            //close connection
+            this.CloseConnection();
         }
 
         /// <summary>
@@ -128,14 +117,10 @@ namespace WoWCheck
         /// <param name="query">Полностью подготовленный запрос</param>
         public void Delete(string query)
         {
-           //"DELETE FROM tableinfo WHERE name='John Smith'";
-
-            if (this.OpenConnection() == true)
-            {
-                MySqlCommand cmd = new MySqlCommand(query, connection);
-                cmd.ExecuteNonQuery();
-                this.CloseConnection();
-            }
+            if (this.OpenConnection() != true) return;
+            var cmd = new MySqlCommand(query, Connection);
+            cmd.ExecuteNonQuery();
+            this.CloseConnection();
         }
 
         /// <summary>
@@ -165,38 +150,59 @@ namespace WoWCheck
                 queryBuilder.Append(" " + whereCondition + ";");
 
             var query = queryBuilder.ToString();
-            //Open connection
-            if (this.OpenConnection() == true)
-            {
-                //Create Command
-                MySqlCommand cmd = new MySqlCommand(query, connection);
-                //Create a data reader and Execute the command
-                MySqlDataReader dataReader = cmd.ExecuteReader();
-                //Чтение полученной информации
-                while (dataReader.Read())
-                {
-                    foreach (var t in columns)
-                    {
-                        dictionaries[t].Add(dataReader[t] + "");
-                    }
-                }
-                //close Data Reader
-                dataReader.Close();
-                //close Connection
-                this.CloseConnection();
-                //return dictionary to be displayed
-                return dictionaries;
-            }
-            else
-            {
-                return dictionaries;
-            }
-        }
 
-        ////Count statement
-        //public int Count()
-        //{
-        //}
+            //Open connection
+            if (this.OpenConnection() != true) return dictionaries;
+            //Create Command
+            var cmd = new MySqlCommand(query, Connection);
+            //Create a data reader and Execute the command
+            var dataReader = cmd.ExecuteReader();
+            while (dataReader.Read())
+            {
+                foreach (var t in columns)
+                {
+                    dictionaries[t].Add(dataReader[t] + "");
+                }
+            }
+            //close Data Reader
+            dataReader.Close();
+            //close Connection
+            this.CloseConnection();
+            //return dictionary to be displayed
+            return dictionaries;
+
+        }
+        /// <summary>
+        /// Запрос SELECT с полным указанием кода запроса
+        /// </summary>
+        /// <param name="straightQuery">Прямой полный запрос, требует форматирования заранее.</param>
+        /// <param name="columns">Список получаемых столбцов (копия после ключевого слова "SELECT")</param>
+        /// <returns></returns>
+        public Dictionary<string, List<string>> SelectWithQuery(string straightQuery, params string[] columns)
+        {
+            var dictionaries = new Dictionary<string, List<string>>();
+
+            //Open connection
+            if (this.OpenConnection() != true) return dictionaries;
+            //Create Command
+            var cmd = new MySqlCommand(straightQuery, Connection);
+            //Create a data reader and Execute the command
+            var dataReader = cmd.ExecuteReader();
+            while (dataReader.Read())
+            {
+                foreach (var t in columns)
+                {
+                    dictionaries[t].Add(dataReader[t] + "");
+                }
+            }
+            //close Data Reader
+            dataReader.Close();
+            //close Connection
+            this.CloseConnection();
+            //return dictionary to be displayed
+            return dictionaries;
+
+        }
 
     }
 }

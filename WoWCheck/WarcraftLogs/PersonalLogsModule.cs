@@ -2,73 +2,68 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using System.Web;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using WoWCheck.Converters;
-using WoWCheck.RaiderIO;
 
 namespace WoWCheck.WarcraftLogs
 {
-    class PersonalLogsModule
+    internal class PersonalLogsModule
     {
-
         public async Task<DiscordEmbedBuilder> PersonalLogsRequest(string name, string metric, string[] serverNameInput)
         {
-            string serverName;
+            DiscordEmbedBuilder embed;
+
+            var errorEmbed = new DiscordEmbedBuilder
+            {
+                Color = new DiscordColor("#3AE6DB"),
+                Title = "Ошибка запроса",
+                Timestamp = DateTime.UtcNow,
+            };
             try
             {
-                serverName = ServerName.WclServerNameConvert(serverNameInput);
+                var serverName = ServerName.WclServerNameConvert(serverNameInput);
 
                 if (metric != "dps" && metric != "hps")
                     throw new ArgumentException("Указана неверная метрика. Требуется указать либо `dps` либо `hps` \n " +
                                                 "Например: `-logs dps адэльвиль гордунни`");
-            }
-            catch (Exception e)
-            {
-                return new DiscordEmbedBuilder
+                var encodedName = HttpUtility.UrlPathEncode(name);
+                var responseContent = WclRequest.Request(
+                    "https://www.warcraftlogs.com:443/v1/rankings/character/"
+                    + encodedName + "/" + serverName
+                    + "/eu?metric=" + metric + "&timeframe=historical").Result;
+
+                using var reader = new StreamReader(await responseContent.ReadAsStreamAsync());
+                List<PersonalLogsStats> serializedStats;
+                try
                 {
-                    Color = new DiscordColor("#3AE6DB"),
-                    Title = "Ошибка запроса",
-                    Description = e.Message,
-                    Timestamp = DateTime.UtcNow,
-                };
-            }
-
-            var encodedName = HttpUtility.UrlPathEncode(name);
-            
-            var responseContent =
-                WCLRequest.Request(
-                        "https://www.warcraftlogs.com:443/v1/rankings/character/"
-                        + encodedName + "/" + serverName
-                        + "/eu?metric=" + metric + "&timeframe=historical").Result;
-
-            using var reader = new StreamReader(await responseContent.ReadAsStreamAsync());
-            var serializedStats = PersonalLogsStats.FromJson(await reader.ReadToEndAsync());
-
-            DiscordEmbedBuilder embed;
-            try
-            {
+                    serializedStats = PersonalLogsStats.FromJson(await reader.ReadToEndAsync());
+                }
+                catch
+                {
+                    throw new Exception("Ошибка десериализации результатов от WarcraftLogs \nПроверьте, верно ли вы ввели никнейм и сервер?\n Синтаксис: `-logs метрика имя сервер`" +
+                                        "\n Например, `-logs dps адэльвиль гордунни`");
+                }
                 embed = CreateEmbed(serializedStats, metric);
             }
             catch (Exception e)
             {
+                errorEmbed.AddField("Ошибка:", e.Message);
                 Console.WriteLine(e);
-                throw;
+                return errorEmbed;
             }
             return embed;
         }
         public DiscordEmbedBuilder CreateEmbed(List<PersonalLogsStats> stats, string metric)
         {
-            var linkMetric = "healing";
+            var metricLink = "healing";
             var metricName = "исцеления";
             if (metric == "dps")
             {
-                linkMetric = "damage-done";
+                metricLink = "damage-done";
                 metricName = "нанесения урона";
             }
             
@@ -76,50 +71,21 @@ namespace WoWCheck.WarcraftLogs
             {
                 Color = new DiscordColor("#3AE6DB"),
                 Title = "Статистика " + metricName + " WarcraftLogs",
-                //Description = "11",
                 Timestamp = DateTime.UtcNow,
             };
 
 
             embed.WithFooter("(c) WarcraftLogs", "https://assets.rpglogs.com/img/warcraft/favicon.png");
             if (stats.Count == 0)
-            {
-                embed.AddField("Не получилось загрузить информацию",
-                    "Возможно, за указанным персонажем отсутствуют закрепленные логи " +
-                    "или все его логи скрыты настройками приватности.");
-                embed.WithColor(new DiscordColor("#F90012"));
-                return embed;
-            }
-            if (stats[0].Error != null)
-            {
-                embed.AddField("Не получилось загрузить информацию", "Ответ сервера:\n" + stats[0].Error +
-                                                                     "\n Проверьте, верно ли вы ввели никнейм и сервер?\n Синтаксис: `-logs метрика имя сервер`" +
-                                                                     "\n Например, `-logs dps адэльвиль гордунни`");
-                embed.WithColor(new DiscordColor("#F90012"));
-                return embed;
-            }
+                throw new Exception("Не получилось загрузить информацию. \n" +
+                                    "Возможно, за указанным персонажем отсутствуют закрепленные логи " +
+                                    "или все его логи скрыты настройками приватности.");
+            
             embed.AddField("Имя", stats[0].CharacterName + "\n" + stats[0].Server, true);
             embed.AddField("Класс", stats[0].Class + "\n", true);
-            BestRunsToFields(FindMostDifficulty(stats), embed, linkMetric);
-            
+            BestRunsToFields(FindMostDifficulty(stats), embed, metricLink);
             return embed;
         }
-        //public string BestRuns(Dictionary<long, PersonalLogsStats> killsAtMostDifficulty)
-        //{
-        //    var result = new StringBuilder();
-        //    foreach (var (_, value) in killsAtMostDifficulty)
-        //    {
-        //        Console.WriteLine(value.StartTime);
-        //        result.Append("-- **" + (int) value.Percentile + "** " + value.EncounterName +
-        //                      "(*" + (Difficulty) value.Difficulty + "*) **Ранг:** *"
-        //                      + value.Rank + "/" + value.OutOf + "* " + value.Spec + " " + 
-        //                      DateTimeOffset.FromUnixTimeMilliseconds(value.StartTime)
-        //                    //  + "\n"
-        //                      );
-        //    }
-
-        //    return result.ToString();
-        //}
 
         public void BestRunsToFields(Dictionary<int, PersonalLogsStats> kills, 
             DiscordEmbedBuilder embed, string linkmetric)
@@ -156,10 +122,11 @@ namespace WoWCheck.WarcraftLogs
             
             return TranslatorAndSerializer(resultDictionary);
         }
-        private Dictionary<int, PersonalLogsStats> TranslatorAndSerializer(Dictionary<long, PersonalLogsStats> SortedStats)
+        private static Dictionary<int, PersonalLogsStats> TranslatorAndSerializer(
+            Dictionary<long, PersonalLogsStats> sortedStats)
         {
             var rightDict = new Dictionary<int, PersonalLogsStats>();
-            foreach (var (_,value) in SortedStats)
+            foreach (var (_,value) in sortedStats)
             {
                 var (order, name) = BossNameWithOrder.BossNameSqlConverter(value.EncounterName);
                 value.EncounterName = name;
@@ -177,7 +144,7 @@ namespace WoWCheck.WarcraftLogs
         Эпохальный,
     }
 
-    #region Автогенерированный код
+    #region Автогенерированный код (объект парсинга json)
 
     public partial class PersonalLogsStats
     {
@@ -246,11 +213,6 @@ namespace WoWCheck.WarcraftLogs
     public partial class PersonalLogsStats
     {
         public static List<PersonalLogsStats> FromJson(string json) => JsonConvert.DeserializeObject<List<PersonalLogsStats>>(json, Converter.Settings);
-    }
-
-    public static class Serialize
-    {
-        public static string ToJson(this List<PersonalLogsStats> self) => JsonConvert.SerializeObject(self, Converter.Settings);
     }
 
     internal static class Converter

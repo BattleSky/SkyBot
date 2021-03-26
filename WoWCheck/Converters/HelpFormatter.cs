@@ -39,14 +39,12 @@ namespace WoWCheck.Converters
                 Embed.AddField("-" + cmd.Name, cmd.Description);            
                 StringBuilder.AppendLine($"{cmd.Name} - {cmd.Description}");
             }
-
             return this;
         }
 
         public override CommandHelpMessage Build()
         {
              return new CommandHelpMessage(embed: Embed);
-             return new CommandHelpMessage(content: StringBuilder.ToString());
         }
     }
 }

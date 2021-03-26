@@ -1,8 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Entities;
 
 
 namespace WoWCheck.Commands
@@ -16,7 +14,14 @@ namespace WoWCheck.Commands
             var author = ctx.User.Mention;
             await ctx.RespondAsync("Привет, " + author);
         }
-
+        //[Command("affix")]
+        //[Description("Показать расписание модификаторов эпохальных подземелий")]
+        //public async Task AffixCommand(CommandContext ctx, string all)
+        //{
+        //    var affixesModule = new ();
+        //    var embed = affixesModule.AffixRequest(ctx.User.AvatarUrl);
+        //    await ctx.RespondAsync(embed: embed.Result);
+        //}
 
 
 

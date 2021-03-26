@@ -1,24 +1,20 @@
-﻿using System;
-using System.Threading.Tasks;
-using DSharpPlus;
+﻿using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using WoWCheck.Commands;
 using WoWCheck.Converters;
-using WoWCheck.RaiderIO;
 
 namespace WoWCheck
 {
-
     internal class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
-            MainTask(args).GetAwaiter().GetResult();
+            MainTask().GetAwaiter().GetResult();
         }
 
-        private static async Task MainTask(string[] args)
+        private static async Task MainTask()
         {
-            var commands = Connections.Discord.UseCommandsNext(new CommandsNextConfiguration()
+            var commands = Connections.Connections.Discord.UseCommandsNext(new CommandsNextConfiguration()
             {
                 StringPrefixes = new[] { "-" }
             });
@@ -28,7 +24,7 @@ namespace WoWCheck
             commands.RegisterCommands<WclCommands>();
             commands.SetHelpFormatter<HelpFormatter>();
 
-            await Connections.Discord.ConnectAsync();
+            await Connections.Connections.Discord.ConnectAsync();
             await Task.Delay(-1);
         }
     }
