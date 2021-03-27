@@ -90,17 +90,17 @@ namespace WoWCheck.WarcraftLogs
         public void BestRunsToFields(Dictionary<int, PersonalLogsStats> kills, 
             DiscordEmbedBuilder embed, string linkmetric)
         {
-            for (var i = 1; i <= kills.Count; i++)
+            foreach (var (_, singleKill) in kills)
             {
-                var result = ("- **" + (int)kills[i].Percentile + "** - "
-                              + kills[i].Spec
-                              + ", Ур. предметов: **" + kills[i].IlvlKeyOrPatch
-                              + "**, Позиция: *" + kills[i].Rank + "/" + kills[i].OutOf
+                var result = ("- **" + (int)singleKill.Percentile + "** - "
+                              + singleKill.Spec
+                              + ", Ур. предметов: **" + singleKill.IlvlKeyOrPatch
+                              + "**, Позиция: *" + singleKill.Rank + "/" + singleKill.OutOf
                               + "*, Дата: "
-                              + DateTimeOffset.FromUnixTimeMilliseconds(kills[i].StartTime).ToString("dd/MM/yy")
-                              + ",  [Ссылка на бой](https://www.warcraftlogs.com/reports/" + kills[i].ReportId + "#fight="
-                              + kills[i].FightId + "&type=" + linkmetric + ")");
-                embed.AddField(kills[i].EncounterName + " *(" + (Difficulty)kills[i].Difficulty + ")*", result);
+                              + DateTimeOffset.FromUnixTimeMilliseconds(singleKill.StartTime).ToString("dd/MM/yy")
+                              + ",  [Ссылка на бой](https://www.warcraftlogs.com/reports/" + singleKill.ReportId + "#fight="
+                              + singleKill.FightId + "&type=" + linkmetric + ")");
+                embed.AddField(singleKill.EncounterName + " *(" + (Difficulty)singleKill.Difficulty + ")*", result);
             }
         }
         private Dictionary<int, PersonalLogsStats> FindMostDifficulty(List<PersonalLogsStats> stats)
