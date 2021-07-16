@@ -49,7 +49,7 @@ namespace WoWCheck.RaiderIO
                 }
             }
             embed.WithFooter("by Raider.IO", "https://cdnassets.raider.io/images/brand/Mark_2ColorWhite.png");
-            embed.AddField("Модификаторы следующей недели:", NextWeekAffix(affix4, affix7));
+            embed.AddField("Модификаторы следующей недели:", NextWeekAffix(affix4, affix7)); 
             return embed;
         }
 
@@ -66,6 +66,8 @@ namespace WoWCheck.RaiderIO
             {
                 var currentWeekAffixSelect = sql.Select("`affixes_schedule`", 
                     $"WHERE affix4 = {affix4} and affix7 = {affix7}", columnName);
+                if (currentWeekAffixSelect[columnName].Count == 0)
+                    return "Неизвестно";
                 var weekAffixId = Convert.ToInt32(currentWeekAffixSelect[columnName][0]) + 1;
 
                 //Open connection
