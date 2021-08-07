@@ -2,7 +2,7 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 
-namespace WoWCheck.Games
+namespace WoWCheck.Fun
 {
 
     static class HealGame

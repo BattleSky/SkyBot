@@ -2,7 +2,7 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using WoWCheck.Games;
+using WoWCheck.Fun;
 
 namespace WoWCheck.Commands
 {
