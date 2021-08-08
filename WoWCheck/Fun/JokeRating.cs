@@ -45,7 +45,23 @@ namespace WoWCheck.Fun
 
         public async Task UpdateRatingAsync()
         {
-            var dateNow = DateTimeOffset.Now;
+            var dateBackWeekly = DateTimeOffset.Now.AddDays(-7);
+            var messagesWithRating = await GetMessages(dateBackWeekly, DateTimeOffset.Now);
+
+            foreach (var jokeRatingMessage in messagesWithRating)
+            {
+                var discordMessage = await Channel.GetMessageAsync(jokeRatingMessage.MessageId);
+                var reactCount = (await discordMessage.GetReactionsAsync(EmojiToCheck, 30)).Count;
+
+                if (reactCount == jokeRatingMessage.Rating)
+                {
+                    messagesWithRating.Remove(jokeRatingMessage);
+                    continue;
+                }
+                jokeRatingMessage.ChangeRating(CountRating(discordMessage).Result);
+                await UpdateDb();
+            }
+            
             throw new NotImplementedException();
         }
         
@@ -54,28 +70,38 @@ namespace WoWCheck.Fun
             var result = new List<JokeRatingDbModel>();
             foreach (var msg in messages)
             {
-                var users = await msg.GetReactionsAsync(EmojiToCheck, 30);
-                var rating = users.Count;
-                
-                foreach (var usr in users)
-                    if (usr.Id == msg.Author.Id)
-                        rating--;
-
+                var rating = await CountRating(msg);
                 var jokeRatingDbModel = new JokeRatingDbModel(msg.Id, msg.Timestamp, msg.Author.Id, rating);
                 result.Add(jokeRatingDbModel);
             }
             return result;
         }
 
-        private void WriteToDb(Dictionary<ulong, int> msgRating)
+        private async Task<int> CountRating(DiscordMessage msg)
+        {
+            var users = await msg.GetReactionsAsync(EmojiToCheck, 30);
+            var rating = users.Count;
+                
+            foreach (var usr in users)
+                if (usr.Id == msg.Author.Id)
+                    rating--;
+            return rating;
+        }
+
+        private async Task WriteToDb(Dictionary<ulong, int> msgRating)
         {
             var queryString = new StringBuilder();
             throw new NotImplementedException();
         }
 
-        private void UpdateDb()
+        private async Task UpdateDb()
         {
             var queryString = new StringBuilder();
+            throw new NotImplementedException();
+        }
+
+        private async Task<List<JokeRatingDbModel>> GetMessages(DateTimeOffset from, DateTimeOffset to)
+        {
             throw new NotImplementedException();
         }
     }
@@ -83,22 +109,22 @@ namespace WoWCheck.Fun
     // TODO: Move classes to separate file
     public class JokeRatingDbModel 
     {
-        private ulong MessageID { get; set; }
-        private DateTimeOffset MessageDate { get; set; }
-        private ulong UserID { get; set; }
-        private int Rating { get; set; }
+        public ulong MessageId { get; private set; }
+        public DateTimeOffset MessageDate { get; private set; }
+        public ulong UserId { get; private set; }
+        public int Rating { get; private set; }
 
         public JokeRatingDbModel(ulong messageId, DateTimeOffset messageDate, ulong userId, int rating)
         {
-            MessageID = messageId;
+            MessageId = messageId;
             MessageDate = messageDate;
-            UserID = userId;
+            UserId = userId;
             Rating = rating;
         }
 
         public void ChangeRating(int rating)
         {
-            throw new NotImplementedException();
+            Rating = rating;
         }
     }
 }
