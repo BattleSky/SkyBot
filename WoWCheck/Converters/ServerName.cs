@@ -31,8 +31,6 @@ namespace WoWCheck.Converters
                 if (i + 1 != servername.Length)
                     result.Append("-");
             }
-
-
             return HttpUtility.UrlPathEncode(result.ToString());
         }
 

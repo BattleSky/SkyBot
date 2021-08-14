@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Reflection.Metadata;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
-using Org.BouncyCastle.Crypto.Tls;
+using Newtonsoft.Json.Linq;
 
 namespace WoWCheck.Fun
 {
@@ -25,28 +24,53 @@ namespace WoWCheck.Fun
         /// </summary>
         private const int TimeToSleepMs = 1 * 60 * 1000; 
         private const string EmojiString = "";
-        private const string TableName = "";
+        private const string TableName = ""; // todo: fill
+        private CancellationToken _cancellationToken;
 
         public JokeRating(CommandContext ctx)
         {
             EmojiToCheck = DiscordEmoji.FromName(Connections.Connections.Discord, EmojiString);
             Channel = ctx.Channel;
+            _cancellationToken = new CancellationToken();
         }
+        
+        /*todo: 
+         * сделать взаимодействие с guildId и channelId
+         * временно можно сделать заглушку для конкретного канала
+         */
 
-        public async Task<List<string>> CollectMessagesWithJokesAsync()
+        public async Task ExecuteWorkForGuild()
         {
-            while (true) // todo: exit property
+            
+            while (!_cancellationToken.IsCancellationRequested)
             {
-                var messages = await Channel.GetMessagesAsync(200);
-                var ratingByMessage = await GetRatingByMessageAsync(messages);
-                Thread.Sleep(TimeToSleepMs);
+                
             }
         }
 
+        /// <summary>
+        /// Первичый сбор сообщений с эмоциями
+        /// </summary>
+        public async Task CollectMessagesWithJokesAsync()
+        {
+            var lastMessage = Channel.LastMessageId;
+            while (!_cancellationToken.IsCancellationRequested)
+            {
+                if (Channel.LastMessageId == lastMessage) continue;
+                lastMessage = Channel.LastMessageId;
+                var messages = await Channel.GetMessagesAsync(100);
+                var ratingByMessage = await GetJokesFromDiscordMessagesAsync(messages);
+                await UpdateDb(ratingByMessage);
+            }
+        }
+        /// <summary>
+        /// Обновление рейтингов на основе выставленных реакций к сообщениям. ID сообщений собираются из БД.
+        /// </summary>
         public async Task UpdateRatingAsync()
         {
+            // todo: make this task trigger less frequently
             var dateBackWeekly = DateTimeOffset.Now.AddDays(-7);
-            var messagesWithRating = await GetMessages(dateBackWeekly, DateTimeOffset.Now);
+            var messagesWithRating = await GetListOfJokesFromDB(dateBackWeekly, DateTimeOffset.Now);
 
             foreach (var jokeRatingMessage in messagesWithRating)
             {
@@ -59,13 +83,17 @@ namespace WoWCheck.Fun
                     continue;
                 }
                 jokeRatingMessage.ChangeRating(CountRating(discordMessage).Result);
-                await UpdateDb();
             }
-            
-            throw new NotImplementedException();
+
+            await UpdateDb(messagesWithRating);
         }
         
-        private async Task<List<JokeRatingDbModel>> GetRatingByMessageAsync(IEnumerable<DiscordMessage> messages)
+        /// <summary>
+        /// Получает шутки из дискорд-сообщений
+        /// </summary>
+        /// <param name="messages">Дискорд-сообщения</param>
+        /// <returns>Лист шуток</returns>
+        private async Task<List<JokeRatingDbModel>> GetJokesFromDiscordMessagesAsync(IEnumerable<DiscordMessage> messages)
         {
             var result = new List<JokeRatingDbModel>();
             foreach (var msg in messages)
@@ -77,6 +105,11 @@ namespace WoWCheck.Fun
             return result;
         }
 
+        /// <summary>
+        /// Подсчет рейтинга шутки для дискорд-сообщения.
+        /// </summary>
+        /// <param name="msg">Дискорд-сообщение</param>
+        /// <returns>Рейтинг</returns>
         private async Task<int> CountRating(DiscordMessage msg)
         {
             var users = await msg.GetReactionsAsync(EmojiToCheck, 30);
@@ -88,20 +121,35 @@ namespace WoWCheck.Fun
             return rating;
         }
 
-        private async Task WriteToDb(Dictionary<ulong, int> msgRating)
+        private async Task WriteToDb(List<JokeRatingDbModel> jokesList)
         {
             var queryString = new StringBuilder();
+            queryString.Append("INSERT INTO wowcheck.jokesRating");
+            foreach (var j in jokesList)
+            {
+                //todo: end this
+                queryString.Append($"('id' = {j.MessageId}, 'messageDate' = '{j.MessageDate}'),");
+            }
+            
             throw new NotImplementedException();
         }
 
-        private async Task UpdateDb()
+        private async Task UpdateDb(List<JokeRatingDbModel> jokesList, DateTimeOffset from = default, DateTimeOffset to = default)
         {
+            if (from == default || to == default)
+                throw new NotImplementedException();
+            
+
             var queryString = new StringBuilder();
-            throw new NotImplementedException();
+            throw new NotImplementedException();   
         }
 
-        private async Task<List<JokeRatingDbModel>> GetMessages(DateTimeOffset from, DateTimeOffset to)
+        private async Task<List<JokeRatingDbModel>> GetListOfJokesFromDB(DateTimeOffset from = default, DateTimeOffset to = default)
         {
+            if (from == default || to == default)
+                throw new NotImplementedException();
+
+
             throw new NotImplementedException();
         }
     }
