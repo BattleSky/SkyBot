@@ -39,9 +39,16 @@ namespace WoWCheck.Fun
          * временно можно сделать заглушку для конкретного канала
          */
 
-        public async Task ExecuteWorkForGuild()
+        public void ExecuteWorkForGuild()
         {
+            var collectRating = new TimerCallback(async obj => await CollectJokesRatingAsync());
+            var updateRating = new TimerCallback(async obj => await UpdateRatingAsync());
             
+            // 10 and 20 minutes
+            // is async??
+            new Timer(collectRating, null, 0, 1000 * 60 * 10);
+            new Timer(updateRating, null, 0, 1000 * 60 * 20);
+
             while (!_cancellationToken.IsCancellationRequested)
             {
                 
@@ -51,7 +58,7 @@ namespace WoWCheck.Fun
         /// <summary>
         /// Первичый сбор сообщений с эмоциями
         /// </summary>
-        public async Task CollectMessagesWithJokesAsync()
+        public async Task CollectJokesRatingAsync()
         {
             var lastMessage = Channel.LastMessageId;
             while (!_cancellationToken.IsCancellationRequested)
